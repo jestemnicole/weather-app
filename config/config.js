@@ -1,4 +1,4 @@
-const IP = 'xxx.xxx.x.xx'; // your IP address here 
 const PORT = 3000; // desired PORT number here 
-module.exports = {IP, PORT};
+const FRONTEND_URL = `http://10.0.2.2:${PORT}/api/weather`;
+module.exports = FRONTEND_URL;
 
