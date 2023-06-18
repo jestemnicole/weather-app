@@ -1,7 +1,9 @@
 import React from 'react';
 import {useState, useEffect} from 'react';
 import type {PropsWithChildren} from 'react';
-import {IP, PORT} from './config/config.js';
+
+import FRONTEND_URL from './config/config.js';
+import axios from 'axios';
 
 import {
   SafeAreaView,
@@ -12,7 +14,8 @@ import {
   useColorScheme,
   View,
   Image,
-  FlatList
+  FlatList,
+  ImageBackground
 } from 'react-native';
 
 
@@ -22,19 +25,15 @@ function App(): JSX.Element {
   const [currentWeatherData, setCurrentWeatherData] = useState<any>(null);
   const [hourlyWeatherData, setHourlyWeatherData] = useState<any>(null);
   const [weeklyWeatherData, setWeeklyWeatherData] = useState<any>(null);
+  const [airQualityData, setAirQualityData] = useState('');
+  const [uvIndexData, setUvIndexData] = useState('');
 
-
-    const fetchWeatherData = async (url : string, setWeatherData : React.Dispatch<any>) => {
+    async function fetchWeatherData(url : string, setWeatherData : React.Dispatch<any>) {
         try {
          
-          const response = await fetch(url);
+          const response = await axios(url);
+          setWeatherData(response.data);
           
-          if (response.ok){
-            const data = await response.json();
-            setWeatherData(data);
-          }else{
-            throw new Error('Failed to fetch data');
-          }
         } catch (e){
           console.error(e);
         }
@@ -42,13 +41,16 @@ function App(): JSX.Element {
 
     useEffect(() => {
       
-        const currentWeatherURL = `http://${IP}:${PORT}/api/weather/current/london`;
-        const hourlyWeatherURL = `http://${IP}:${PORT}/api/weather/hourly/london`;
-        const weeklyWeatherURL = `http://${IP}:${PORT}/api/weather/weekly/london`;
+        const currentWeatherURL = `${FRONTEND_URL}/current/london`;
+        const hourlyWeatherURL = `${FRONTEND_URL}/hourly/london`;
+        const weeklyWeatherURL = `${FRONTEND_URL}/weekly/london`;
+        const airQualityURL = `${FRONTEND_URL}/airquality/london`;
+        const uvURL = `${FRONTEND_URL}/uv/london`;
         fetchWeatherData(currentWeatherURL, setCurrentWeatherData);
         fetchWeatherData(hourlyWeatherURL, setHourlyWeatherData);
         fetchWeatherData(weeklyWeatherURL, setWeeklyWeatherData);
-      
+        fetchWeatherData(airQualityURL, setAirQualityData);
+        fetchWeatherData(uvURL, setUvIndexData);
       }, []);
 
     type weeklyWeatherInterface = {
@@ -59,27 +61,30 @@ function App(): JSX.Element {
     }
       
   return ( 
-    <SafeAreaView style={styles.mainViewStyle}>
+    <ImageBackground source={require('./assets/blue_sky.jpg')}>
+    <SafeAreaView>
       <ScrollView>
       {currentWeatherData && <View style={styles.currentWeatherDisplay}>
         <Text style={{fontSize: 40,
                       marginTop: 30,
-                      color : 'black'}}>{currentWeatherData.location.name}</Text>
-        <Text style={{fontSize: 80, color : 'black'}}>{Math.round(currentWeatherData.current.temp_f)}°</Text>
-        <Text style={{fontSize: 20, color : 'black', marginBottom: 10}}>{currentWeatherData.current.condition.text}</Text>
+                      color : 'white', fontFamily : 'Roboto', textShadowColor : 'rgba(0, 0, 0, 0.6)', textShadowRadius : 1, textShadowOffset : {width : -1, height : 1}}}>{currentWeatherData.location.name}</Text>
+        <Text style={{fontSize: 80, color : 'white', fontFamily : 'Roboto', textShadowColor : 'rgba(0, 0, 0, 0.6)', textShadowRadius : 1, textShadowOffset : {width : -1, height : 1}}}>{Math.round(currentWeatherData.current.temp_f)}°</Text>
+        <Text style={{fontSize: 20, color : 'white', marginBottom: 10, textShadowColor : 'rgba(0, 0, 0, 0.6)', textShadowRadius : 1, textShadowOffset : {width : -1, height : 1}}}>{currentWeatherData.current.condition.text}</Text>
       </View>}
 
     {<FlatList style={styles.hourlyWeatherList} data={hourlyWeatherData}
               renderItem={({item}) => 
                 <View style={styles.hourlyWeatherDisplay}>
-                  <Text style={{color : 'black', fontFamily: 'Roboto'}}>{item.time}</Text>
+                  <Text style={{color : 'white', fontFamily: 'Roboto', fontSize : 15}}>{item.time}</Text>
                   <Image source={{uri : 'https:' + item.icon}}
-                          style={{width: 50, height: 50}}></Image>
-                  <Text style={{color : 'black', fontFamily: 'Roboto'}}>{item.temp_f}</Text>
+                          style={{width: 40, height: 40}}></Image>
+                  <Text style={{color : 'white', fontFamily: 'Roboto', fontSize : 20}}>{item.temp_f}</Text>
                 </View>}
                horizontal={true}>
       </FlatList>}
 
+      <View style={styles.weeklyWeatherList}>
+            <Text style={{color : 'white', fontFamily : 'Roboto', fontSize : 13}}>3-DAY FORECAST</Text>
       {weeklyWeatherData && weeklyWeatherData.map((item : weeklyWeatherInterface) => {
               return (
               <View style={styles.weeklyWeatherDisplay}>
@@ -90,47 +95,94 @@ function App(): JSX.Element {
               )
               
       })}
+      </View>
          
+      <View style={{flex : 1, flexDirection : 'row'}}>
+          <View style={styles.UVIndexView}>
+          <Text style={{color : 'white'}}>UV INDEX</Text>
+          <Text style={{color : 'white', fontSize : 20, textAlign: 'center'}}>{uvIndexData}</Text>
+          </View>
+
+          <View style={styles.airQualityView}>
+        <Text style={{color : 'white', fontFamily : 'Roboto', fontSize : 13}}>AIR QUALITY</Text>
+        <Text style={{color : 'white', fontFamily : 'Roboto', fontSize : 20, textAlign : 'center'}}>{airQualityData}</Text>
+        </View>
+
+          
+        </View>
          
 
           
          
       </ScrollView>
     </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
 
-  mainViewStyle: {
-      backgroundColor : 'white'
-  },
+  
 
   currentWeatherDisplay : {
+  
     alignItems: 'center',
-    fontFamily: 'Roboto'
+    fontFamily: 'Roboto',
+    marginBottom : 20
   },
 
   hourlyWeatherList : {
-    backgroundColor : 'white',
-    borderRadius : 10
+    backgroundColor : 'rgba(0, 0, 0, 0.1)',
+    marginLeft : 18,
+    marginRight : 18,
+    borderRadius : 10,
+    marginBottom : 10,
+    padding : 8
   },
 
   hourlyWeatherDisplay : {
     alignItems: 'center',
-    marginBottom: 10,
+    marginRight : 18
 
   },
 
   weeklyWeatherDisplay : {
     flexDirection : 'row',
-    marginBottom : 10
+    marginBottom : 10,
+    marginTop : 10
+  },
+  weeklyWeatherList : {
+    backgroundColor : 'rgba(0, 0, 0, 0.1)',
+    marginLeft : 18,
+    marginRight : 18,
+    borderRadius : 10,
+    marginBottom : 10,
+    padding : 8
+  },
+  weeklyWeatherText : {
+    color : 'white',
+    fontSize : 20,
+    fontFamily : 'Roboto'
   },
 
-  weeklyWeatherText : {
-    marginRight : 10,
-    color : 'black'
+  airQualityView : {
+    backgroundColor : 'rgba(0, 0, 0, 0.1)',
+    marginLeft : 18,
+    marginRight : 18,
+    marginBottom : 10,
+    padding : 8,
+    borderRadius : 10
+  },
+
+  UVIndexView : {
+    backgroundColor : 'rgba(0, 0, 0, 0.1)',
+    marginLeft : 18,
+    marginRight : 18,
+    padding : 8,
+    borderRadius : 10,
+    marginBottom : 10,
   }
+  
 });
 
 export default App;
