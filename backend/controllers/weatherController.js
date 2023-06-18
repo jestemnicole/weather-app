@@ -28,4 +28,26 @@ exports.getWeeklyWeather = async (req, res) => {
     } catch (error){
         res.status(500).json({message: 'Error'});
     }
-}
+};
+exports.getAirQuality = async (req, res) => {
+
+    try { 
+        const airQualityData = await weatherService.getAirQualityData(req.params.location);
+        
+        res.json(airQualityData);
+    } catch (error){
+        res.status(500).json({message : 'Error'})
+    }
+
+};
+
+exports.getUV = async (req, res) => {
+    try { 
+        const UVData = await weatherService.getUVData(req.params.location);
+        
+        res.json(UVData);
+    } catch (error){
+        res.status(500).json({message : 'Error'})
+    }
+};
+

@@ -1,12 +1,11 @@
 require('dotenv').config({ path: '../.env' });
 const moment = require('moment');
-const fetchWeatherData = require('../api.js');
 
 exports.getCurrentWeatherData = async (location, aqi) => {
     try {
        
-        const data = await fetchWeatherData(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&aqi=${aqi ? 'yes' : 'no'}`);       
-        return data;
+        const response = await axios(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&aqi=${aqi ? 'yes' : 'no'}`);       
+        return response.data;
 
     }catch (error){
         console.error(error);
@@ -15,17 +14,17 @@ exports.getCurrentWeatherData = async (location, aqi) => {
 // get next 24 hours
 exports.getHourlyWeatherData = async (location) => {
     try {
-        const data = await fetchWeatherData(`http://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&days=2&aqi=no&alerts=no`);
+        const response = await axios(`http://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&days=2&aqi=no&alerts=no`);
         
-        const hours = data['forecast']['forecastday'][0]['hour'];
-        hours.push(...data['forecast']['forecastday'][1]['hour']);
+        const hours = response.data['forecast']['forecastday'][0]['hour'];
+        hours.push(...response.data['forecast']['forecastday'][1]['hour']);
         
         const current = {
             time : 'Now',
-            temp_f : Math.round(data['current']['temp_f']) + '°',
-            icon : data['current']['condition']['icon']
+            temp_f : Math.round(response.data['current']['temp_f']) + '°',
+            icon : response.data['current']['condition']['icon']
         };
-        const currentTime = data['current']['last_updated'];
+        const currentTime = response.data['current']['last_updated'];
         const hourly = [];
         hourly.push(current);
         let count = 1;
@@ -60,13 +59,13 @@ exports.getHourlyWeatherData = async (location) => {
 exports.getWeeklyWeatherData = async (location) => {
     
     try {
-        const data = await fetchWeatherData(`http://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&days=7&aqi=no&alerts=no`);
+        const response = await axios(`http://api.weatherapi.com/v1/forecast.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&days=7&aqi=no&alerts=no`);
         let week = [];
         let weekly = [];
 
         
         for (let day = 0; day < 3; day++){ // 3 days for now
-            week.push(data['forecast']['forecastday'][day]['hour']);
+            week.push(response.data['forecast']['forecastday'][day]['hour']);
         }
 
         
@@ -98,4 +97,33 @@ exports.getWeeklyWeatherData = async (location) => {
     } catch (error){
         console.error(error);
     }
-}
+};
+
+exports.getAirQualityData = async(location) => {
+    try {
+        const response = await axios(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&aqi=yes`);
+        const index = response.data['current']['air_quality']['us-epa-index'];
+        
+        const table = {
+            1 : 'Good',
+            2 : 'Moderate',
+            3 : 'Unhealthy for Sensitive Group',
+            4 : 'Unhealthy',
+            5 : 'Very Unhealthy',
+            6 : 'Hazardous'
+        };
+        
+        return table[index];
+    }catch (error){
+        console.error(error);
+    }
+};
+
+exports.getUVData = async(location) => {
+    try {
+        const response = await axios(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&aqi=no`);
+        return response.data['current']['uv'];
+    }catch(error){
+        console.error(error);
+    }
+};
