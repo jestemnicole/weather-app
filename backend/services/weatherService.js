@@ -1,9 +1,10 @@
 require('dotenv').config({ path: '../.env' });
 const moment = require('moment');
+const axios = require('axios');
 
 exports.getCurrentWeatherData = async (location, aqi) => {
     try {
-       
+        
         const response = await axios(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&aqi=${aqi ? 'yes' : 'no'}`);       
         return response.data;
 
@@ -85,8 +86,8 @@ exports.getWeeklyWeatherData = async (location) => {
             const dayOfWeek = {
                 day : date.isSame(today, 'day') ? 'Today' : date.format('dddd'),
                 icon : '',
-                low : low,
-                high : high
+                low : Math.round(low),
+                high : Math.round(high)
             };
 
             weekly.push(dayOfWeek);

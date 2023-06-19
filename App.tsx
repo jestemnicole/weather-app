@@ -87,10 +87,10 @@ function App(): JSX.Element {
             <Text style={{color : 'white', fontFamily : 'Roboto', fontSize : 13}}>3-DAY FORECAST</Text>
       {weeklyWeatherData && weeklyWeatherData.map((item : weeklyWeatherInterface) => {
               return (
-              <View style={styles.weeklyWeatherDisplay}>
+              <View key={item.day} style={styles.weeklyWeatherDisplay}>
                 <Text style={styles.weeklyWeatherText}>{item.day}</Text>
-                <Text style={styles.weeklyWeatherText}>low: {item.low}</Text>
-                <Text style={styles.weeklyWeatherText}>high: {item.high}</Text>
+                <Text style={{...styles.weeklyWeatherText, marginLeft : 'auto', marginRight : 30}}>L: {item.low}°</Text>
+                <Text style={styles.weeklyWeatherText}>H: {item.high}°</Text>
               </View>
               )
               
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     borderRadius : 10,
     marginBottom : 10,
   }
-  
+
 });
 
 export default App;
