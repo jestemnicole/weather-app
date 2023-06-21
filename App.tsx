@@ -1,9 +1,9 @@
 import React from 'react';
 import {useState, useEffect} from 'react';
 import type {PropsWithChildren} from 'react';
-
 import FRONTEND_URL from './config/config.js';
 import axios from 'axios';
+import Geolocation from '@react-native-community/geolocation';
 
 import {
   SafeAreaView,
@@ -15,9 +15,15 @@ import {
   View,
   Image,
   FlatList,
-  ImageBackground
+  ImageBackground,
+  Platform,
+  PermissionsAndroid
 } from 'react-native';
 
+type locationInterface = {
+  latitude : number,
+  longitude : number
+}
 
 
 function App(): JSX.Element {
@@ -27,7 +33,45 @@ function App(): JSX.Element {
   const [weeklyWeatherData, setWeeklyWeatherData] = useState<any>(null);
   const [airQualityData, setAirQualityData] = useState('');
   const [uvIndexData, setUvIndexData] = useState('');
+  const [location, setLocation] = useState<locationInterface | null>(null);
 
+    async function requestLocation() {
+       try {
+          const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            {
+              title : 'Location Permission',
+              message : 'tell me coords ',
+              buttonPositive : 'SURE',
+            });
+
+            if (granted === PermissionsAndroid.RESULTS.GRANTED){
+              console.log('ok permission granted')
+            }else{
+              console.log('ok so no coords')
+            }
+
+       }catch(e){
+          console.error(e)
+       }
+    }
+
+    Geolocation.getCurrentPosition( position => {
+
+        const currentPosition = {
+          latitude : position.coords.latitude,
+          longitude : position.coords.longitude
+        };
+
+        setLocation(currentPosition);
+        
+    },
+    error => {
+      console.log('Error: ' , error.message);
+    }
+    );
+
+    
+   
     async function fetchWeatherData(url : string, setWeatherData : React.Dispatch<any>) {
         try {
          
@@ -40,17 +84,21 @@ function App(): JSX.Element {
     }
 
     useEffect(() => {
+
+        requestLocation();
       
-        const currentWeatherURL = `${FRONTEND_URL}/current/london`;
-        const hourlyWeatherURL = `${FRONTEND_URL}/hourly/london`;
-        const weeklyWeatherURL = `${FRONTEND_URL}/weekly/london`;
-        const airQualityURL = `${FRONTEND_URL}/airquality/london`;
-        const uvURL = `${FRONTEND_URL}/uv/london`;
+        const currentWeatherURL = `${FRONTEND_URL}/current/${location?.latitude},${location?.longitude}`;
+        const hourlyWeatherURL = `${FRONTEND_URL}/hourly/${location?.latitude},${location?.longitude}`;
+        const weeklyWeatherURL = `${FRONTEND_URL}/weekly/${location?.latitude},${location?.longitude}`;
+        const airQualityURL = `${FRONTEND_URL}/airquality/${location?.latitude},${location?.longitude}`;
+        const uvURL = `${FRONTEND_URL}/uv/${location?.latitude},${location?.longitude}`;
+        
         fetchWeatherData(currentWeatherURL, setCurrentWeatherData);
         fetchWeatherData(hourlyWeatherURL, setHourlyWeatherData);
         fetchWeatherData(weeklyWeatherURL, setWeeklyWeatherData);
         fetchWeatherData(airQualityURL, setAirQualityData);
         fetchWeatherData(uvURL, setUvIndexData);
+        
       }, []);
 
     type weeklyWeatherInterface = {
