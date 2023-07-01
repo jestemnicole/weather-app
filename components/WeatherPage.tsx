@@ -2,6 +2,9 @@ import React from 'react';
 import {useState, useEffect} from 'react';
 import FRONTEND_URL from '../config/config.js';
 import axios from 'axios';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+
 import {
     SafeAreaView,
     ScrollView,
@@ -17,60 +20,15 @@ import {
     PermissionsAndroid
   } from 'react-native';
 
-type locationInterface = {
-    latitude : number,
-    longitude : number
-  }
-function WeatherPage(): JSX.Element {
+  
+function WeatherPage({location} : {location : string}): JSX.Element {
  
     const [currentWeatherData, setCurrentWeatherData] = useState<any>(null);
     const [hourlyWeatherData, setHourlyWeatherData] = useState<any>(null);
     const [weeklyWeatherData, setWeeklyWeatherData] = useState<any>(null);
     const [airQualityData, setAirQualityData] = useState('');
     const [uvIndexData, setUvIndexData] = useState('');
-    //const [location, setLocation] = useState<locationInterface | null>(null);
-  
-      /*async function requestLocation() {
-         try {
-            const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-              {
-                title : 'Location Permission',
-                message : 'tell me coords ',
-                buttonPositive : 'SURE',
-              });
-  
-              console.log("permission result : ", granted);
-  
-              if (granted === PermissionsAndroid.RESULTS.GRANTED){
-                console.log("granted!")
-                
-                Geolocation.getCurrentPosition( position => {
-  
-                  const currentPosition = {
-                    latitude : position.coords.latitude,
-                    longitude : position.coords.longitude
-                  };
-            
-                  setLocation(currentPosition);
-                  
-              }, error => {
-                console.log(error)
-              },
-              {enableHighAccuracy : true, timeout: 15000, maximumAge: 10000})
-              }else{
-                console.log('ok so no coords')
-              }
-   
-              
-  
-         }catch(e){
-            console.error(e)
-         }
-      }*/
-  
-      
-       
-     
+    
       async function fetchWeatherData(url : string, setWeatherData : React.Dispatch<any>) {
           try {
            
@@ -81,26 +39,23 @@ function WeatherPage(): JSX.Element {
             console.error(e);
           }
       }
-      //useEffect(() => {
-        //requestLocation();
-      //}, []);
+      
   
   
       useEffect(() => {
-        //if (location){
-  
-          const currentWeatherURL = `${FRONTEND_URL}/current/london`;
-          const hourlyWeatherURL = `${FRONTEND_URL}/hourly/london`;
-          const weeklyWeatherURL = `${FRONTEND_URL}/weekly/london`;
-          const airQualityURL = `${FRONTEND_URL}/airquality/london`;
-          const uvURL = `${FRONTEND_URL}/uv/london`;
+     
+          const currentWeatherURL = `${FRONTEND_URL}/current/${location}`;
+          const hourlyWeatherURL = `${FRONTEND_URL}/hourly/${location}`;
+          const weeklyWeatherURL = `${FRONTEND_URL}/weekly/${location}`;
+          const airQualityURL = `${FRONTEND_URL}/airquality/${location}`;
+          const uvURL = `${FRONTEND_URL}/uv/${location}`;
           
           fetchWeatherData(currentWeatherURL, setCurrentWeatherData);
           fetchWeatherData(hourlyWeatherURL, setHourlyWeatherData);
           fetchWeatherData(weeklyWeatherURL, setWeeklyWeatherData);
           fetchWeatherData(airQualityURL, setAirQualityData);
           fetchWeatherData(uvURL, setUvIndexData);
-        //}
+        
           
         }, []);
   
@@ -114,7 +69,7 @@ function WeatherPage(): JSX.Element {
 
       return (
 
-      //<ImageBackground source={require('../assets/blue_sky.jpg')}>
+      <ImageBackground style={{flex : 1}}source={require('../assets/blue_sky.jpg')}>
       <ScrollView>
       {currentWeatherData && <View style={styles.currentWeatherDisplay}>
         <Text style={{fontSize: 40,
@@ -166,7 +121,8 @@ function WeatherPage(): JSX.Element {
 
           
          
-      </ScrollView>  //</ImageBackground>
+      </ScrollView> 
+      </ImageBackground>
    
       );
     }
