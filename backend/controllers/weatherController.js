@@ -51,3 +51,14 @@ exports.getUV = async (req, res) => {
     }
 };
 
+
+exports.getWeatherCard = async (req, res) => {
+    try { 
+        const weatherCardData = await weatherService.getWeatherCardData(req.params.location);
+        
+        res.json(weatherCardData);
+    } catch (error){
+        res.status(500).json({message : 'Error'})
+    }
+}
+

@@ -128,3 +128,23 @@ exports.getUVData = async(location) => {
         console.error(error);
     }
 };
+
+exports.getWeatherCardData = async (location) => {
+    try {
+        const response = await axios(`http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_API_KEY}&q=${location}&aqi=no`);
+        
+        const weatherCardData = {
+            id : response.data['location']['name'],
+            location_name : response.data['location']['name'],
+            localtime : response.data['location']['localtime'].split(" ")[1],
+            weather_desc : response.data['current']['condition']['text'],
+            current_temp : Math.round(response.data['current']['temp_f']),
+            high : '', 
+            low : ''
+        };
+
+        return weatherCardData;
+    }catch(error){
+        console.error(error);
+    }
+}
