@@ -2,23 +2,9 @@ import React from 'react';
 import {useState, useEffect} from 'react';
 import FRONTEND_URL from '../config/config.js';
 import axios from 'axios';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-
-import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    useColorScheme,
-    View,
-    Image,
-    FlatList,
-    ImageBackground,
-    Platform,
-    PermissionsAndroid
-  } from 'react-native';
+import { WeeklyWeatherInterface } from '../types/index.js';
+import { FlatList } from 'react-native-gesture-handler';
+import { ScrollView, StyleSheet, Text, View, Image, ImageBackground } from 'react-native';
 
   
 function WeatherPage({location} : {location : string}): JSX.Element {
@@ -59,17 +45,11 @@ function WeatherPage({location} : {location : string}): JSX.Element {
           
         }, []);
   
-      type weeklyWeatherInterface = {
-        day : string,
-        icon : string,
-        low : number,
-        high : number
-      }
 
-
+     
       return (
 
-      <ImageBackground style={{flex : 1}}source={require('../assets/blue_sky.jpg')}>
+      <ImageBackground style={{flex : 1}}source={require(`../assets/blue_sky.jpg`)}>
       <ScrollView>
       {currentWeatherData && <View style={styles.currentWeatherDisplay}>
         <Text style={{fontSize: 40,
@@ -92,7 +72,7 @@ function WeatherPage({location} : {location : string}): JSX.Element {
 
       <View style={styles.weeklyWeatherList}>
             <Text style={{color : 'white', fontFamily : 'Roboto', fontSize : 13}}>3-DAY FORECAST</Text>
-      {weeklyWeatherData && weeklyWeatherData.map((item : weeklyWeatherInterface) => {
+      {weeklyWeatherData && weeklyWeatherData.map((item : WeeklyWeatherInterface) => {
               return (
               <View key={item.day} style={styles.weeklyWeatherDisplay}>
                 <Text style={styles.weeklyWeatherText}>{item.day}</Text>

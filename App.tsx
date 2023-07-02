@@ -2,22 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack'
 import { SafeAreaView, StyleSheet } from 'react-native';
-import Home from './components/Home';
-import WeatherViewer from './components/WeatherViewer';
+import Home from './screens/Home';
+import WeatherViewer from './screens/WeatherViewer';
+import { RootParamList } from './types';
 
-type locationInterface = {
-  id : string,
-  location_name : string,
-  localtime : string,
-  weather_desc : string,
-  current_temp : string,
-  high : string,
-  low : string
-}
-type RootParamList = {
-  Home: undefined;
-  WeatherViewer: {locations : locationInterface[] , initialIndex : number};
-};
 
 
 const Stack = createStackNavigator<RootParamList>();

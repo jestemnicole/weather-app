@@ -2,31 +2,22 @@ import {View, Text, Button, TouchableOpacity, TouchableWithoutFeedback} from 're
 import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useRef } from 'react';
+import { WeatherCardProps } from '../types';
 
-type locationInterface = {
-    id : string,
-    location_name : string,
-    localtime : string,
-    weather_desc : string,
-    current_temp : string,
-    high : string,
-    low : string
-   
-}
-
-
-function WeatherCard({ location, onDelete, onPress, index }: { location: locationInterface; onDelete: (loc: locationInterface) => void; onPress : (index : number) => void; index : number}) : JSX.Element {
+function WeatherCard({ location, onDelete, onPress, index }: WeatherCardProps) : JSX.Element {
     const swipeableRef = useRef<Swipeable>(null);
     
 
     const rightswipe = () => {
-        return (<TouchableOpacity onPress={() => {
+        return (
+        <TouchableOpacity onPress={() => {
             onDelete(location)
             resetState()}}>
-        <View  style={{backgroundColor : 'red', borderRadius : 15, marginBottom : 10, padding : 10, marginLeft : 10, justifyContent : 'center'}}>
+        <View style={{flex : 1, backgroundColor : 'red', borderRadius : 15, marginBottom : 10, padding : 10, marginLeft : 10, justifyContent : 'center'}}>
             <Icon name="trash" size={40} color='white'></Icon>
             </View>
-            </TouchableOpacity>)
+            </TouchableOpacity>
+        )
     }
 
     const resetState = () => {
@@ -37,8 +28,10 @@ function WeatherCard({ location, onDelete, onPress, index }: { location: locatio
         onPress(index);
       }
 
+      
+
     return (
-            <TouchableOpacity onPress={handleCardPress}>
+            <TouchableOpacity activeOpacity={1} onPress={handleCardPress}>
             <Swipeable renderRightActions={rightswipe} ref={swipeableRef}>
             <View key={location.id} style={{backgroundColor : 'gray', borderRadius : 15, position : 'relative', padding : 10, marginBottom : 10}}>
                 <View>

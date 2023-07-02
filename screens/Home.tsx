@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import {View, Text, ScrollView} from 'react-native';
 import { SearchBar} from  '@rneui/themed';
-import WeatherCard from './WeatherCard';
+import WeatherCard from '../components/WeatherCard';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import FRONTEND_URL = require('../config/config');
 import axios from 'axios';
-import { StackScreenProps } from '@react-navigation/stack'
-
+import { HomeProps, LocationInterface } from '../types';
 
 const locations = [
     {id : '0',
@@ -29,25 +28,8 @@ const locations = [
 
 ]
 
-type locationInterface = {
-    id : string,
-    location_name : string,
-    localtime : string,
-    weather_desc : string,
-    current_temp : string,
-    high : string,
-    low : string
-   
-}
-type RootParamList = {
-    Home: undefined;
-    WeatherViewer: {locations : locationInterface[] , initialIndex : number};
-  };
-
-type HomeProps = StackScreenProps<RootParamList, 'Home'>;
-
 function Home({ navigation } : HomeProps) : JSX.Element {
-    const [myLocations, setMyLocations] = useState<locationInterface[]>(locations);
+    const [myLocations, setMyLocations] = useState<LocationInterface[]>(locations);
     const [searchQuery, setSearchQuery] = useState('');
 
 
@@ -55,7 +37,7 @@ function Home({ navigation } : HomeProps) : JSX.Element {
 
         const fetchWeatherCardData = async () => {
             
-            const updatedLocations : locationInterface[] = [];
+            const updatedLocations : LocationInterface[] = [];
             
             for (const location of myLocations){
 
@@ -77,8 +59,8 @@ function Home({ navigation } : HomeProps) : JSX.Element {
     
     const onChangeSearch = (query : string) => setSearchQuery(query);
 
-    const onDeletePress = (location : locationInterface) => {
-            const newLocations : locationInterface[] = [];
+    const onDeletePress = (location : LocationInterface) => {
+            const newLocations : LocationInterface[] = [];
 
             myLocations.map(item => {
                
