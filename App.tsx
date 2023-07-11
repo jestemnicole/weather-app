@@ -5,8 +5,7 @@ import { SafeAreaView, StyleSheet } from 'react-native';
 import Home from './screens/Home';
 import WeatherViewer from './screens/WeatherViewer';
 import { RootParamList } from './types';
-
-
+import WeatherPreview from './screens/WeatherPreview';
 
 const Stack = createStackNavigator<RootParamList>();
 
@@ -19,6 +18,7 @@ function App(): JSX.Element {
       <Stack.Navigator initialRouteName='Home'>
       <Stack.Screen name='Home' component={Home} options={{ headerShown: false }}></Stack.Screen>
       <Stack.Screen name='WeatherViewer' component={WeatherViewer} options={{headerShown : false}}></Stack.Screen>
+      <Stack.Screen name='WeatherPreview' component={WeatherPreview} options={{headerShown : false}}></Stack.Screen>
       </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>
