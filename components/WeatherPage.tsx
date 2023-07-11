@@ -1,13 +1,18 @@
 import React from 'react';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, PropsWithChildren} from 'react';
 import FRONTEND_URL from '../config/config.js';
 import axios from 'axios';
 import { WeeklyWeatherInterface } from '../types/index.js';
 import { FlatList } from 'react-native-gesture-handler';
 import { ScrollView, StyleSheet, Text, View, Image, ImageBackground } from 'react-native';
 
-  
-function WeatherPage({location} : {location : string}): JSX.Element {
+  type WeatherPageProps = {
+      location : string,
+
+  }
+
+
+function WeatherPage(props : PropsWithChildren<WeatherPageProps>): JSX.Element {
  
     const [currentWeatherData, setCurrentWeatherData] = useState<any>(null);
     const [hourlyWeatherData, setHourlyWeatherData] = useState<any>(null);
@@ -30,11 +35,11 @@ function WeatherPage({location} : {location : string}): JSX.Element {
   
       useEffect(() => {
      
-          const currentWeatherURL = `${FRONTEND_URL}/current/${location}`;
-          const hourlyWeatherURL = `${FRONTEND_URL}/hourly/${location}`;
-          const weeklyWeatherURL = `${FRONTEND_URL}/weekly/${location}`;
-          const airQualityURL = `${FRONTEND_URL}/airquality/${location}`;
-          const uvURL = `${FRONTEND_URL}/uv/${location}`;
+          const currentWeatherURL = `${FRONTEND_URL}/current/${props.location}`;
+          const hourlyWeatherURL = `${FRONTEND_URL}/hourly/${props.location}`;
+          const weeklyWeatherURL = `${FRONTEND_URL}/weekly/${props.location}`;
+          const airQualityURL = `${FRONTEND_URL}/airquality/${props.location}`;
+          const uvURL = `${FRONTEND_URL}/uv/${props.location}`;
           
           fetchWeatherData(currentWeatherURL, setCurrentWeatherData);
           fetchWeatherData(hourlyWeatherURL, setHourlyWeatherData);
@@ -46,17 +51,39 @@ function WeatherPage({location} : {location : string}): JSX.Element {
         }, []);
   
 
-     
+        const image = (currentWeatherData && currentWeatherData.current.condition.text === "Sunny") ? require("../assets/blue_sky.jpg") : (currentWeatherData && currentWeatherData.current.condition.text === "Clear") ? require("../assets/night_sky.jpg") : require("../assets/blue_sky.jpg");
+
       return (
 
-      <ImageBackground style={{flex : 1}}source={require(`../assets/blue_sky.jpg`)}>
+      <ImageBackground style={{flex : 1}}source={image}>
+      {props.children}
       <ScrollView>
       {currentWeatherData && <View style={styles.currentWeatherDisplay}>
         <Text style={{fontSize: 40,
                       marginTop: 30,
-                      color : 'white', fontFamily : 'Roboto', textShadowColor : 'rgba(0, 0, 0, 0.6)', textShadowRadius : 1, textShadowOffset : {width : -1, height : 1}}}>{currentWeatherData.location.name}</Text>
-        <Text style={{fontSize: 80, color : 'white', fontFamily : 'Roboto', textShadowColor : 'rgba(0, 0, 0, 0.6)', textShadowRadius : 1, textShadowOffset : {width : -1, height : 1}}}>{Math.round(currentWeatherData.current.temp_f)}°</Text>
-        <Text style={{fontSize: 20, color : 'white', marginBottom: 10, textShadowColor : 'rgba(0, 0, 0, 0.6)', textShadowRadius : 1, textShadowOffset : {width : -1, height : 1}}}>{currentWeatherData.current.condition.text}</Text>
+                      color : 'white', 
+                      fontFamily : 'Roboto', 
+                      marginBottom : -20
+                      }}>
+                    {currentWeatherData.location.name}
+        </Text>
+          
+        <Text style={{fontSize: 100, 
+                      color : 'white', 
+                      marginBottom : -10,
+                      fontFamily : 'Roboto'
+                      }}>
+                    {Math.round(currentWeatherData.current.temp_f)}
+        </Text>
+        
+        
+
+        <Text style={{fontSize: 20, 
+                      color : 'white', 
+                      marginBottom: 10}}>
+                    {currentWeatherData.current.condition.text}
+        </Text>
+
       </View>}
 
     {<FlatList style={styles.hourlyWeatherList} data={hourlyWeatherData}
@@ -112,7 +139,7 @@ function WeatherPage({location} : {location : string}): JSX.Element {
       currentWeatherDisplay : {
         alignItems: 'center',
         fontFamily: 'Roboto',
-        marginBottom : 20
+        marginBottom : 30
       },
     
       hourlyWeatherList : {

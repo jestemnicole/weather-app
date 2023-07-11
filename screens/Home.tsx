@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import {View, Text, ScrollView} from 'react-native';
+import {View, Text, ScrollView, Animated, StyleSheet, Button, TouchableOpacity, Pressable} from 'react-native';
 import { SearchBar} from  '@rneui/themed';
 import WeatherCard from '../components/WeatherCard';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import FRONTEND_URL = require('../config/config');
 import axios from 'axios';
 import { HomeProps, LocationInterface } from '../types';
@@ -12,27 +12,32 @@ const locations = [
     location_name : 'New York',
     localtime : '11:00PM',
     weather_desc : 'Cloudy',
-    current_temp : '60',
-    high : '70',
-    low : '58'
+    current_temp : 60,
+    high : 70,
+    low : 58
     },
 
     {id : '1',
         location_name : 'Warsaw',
         localtime : '11:00PM',
         weather_desc : 'Cloudy',
-        current_temp : '60',
-        high : '70',
-        low : '58'
+        current_temp : 60,
+        high : 70,
+        low : 58
         },
 
 ]
 
-function Home({ navigation } : HomeProps) : JSX.Element {
+
+
+
+
+function Home({ navigation, route } : HomeProps) : JSX.Element {
     const [myLocations, setMyLocations] = useState<LocationInterface[]>(locations);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchBarFocus, setSearchBarFocus] = useState(false);
 
-
+    
     useEffect(() => {
 
         const fetchWeatherCardData = async () => {
@@ -56,8 +61,38 @@ function Home({ navigation } : HomeProps) : JSX.Element {
         fetchWeatherCardData();
         
     },[]);
+
+    useEffect(() => {
+        if (route.params?.newLocation){
+            console.log(route.params?.newLocation);
+            const fetchWeatherCardData = async () => {
+            
+                const updatedLocations : LocationInterface[] = [];
+                updatedLocations.push(...myLocations);
+               
+                    try {
+                        const response = await axios.get(`${FRONTEND_URL}/weathercard/${route.params?.newLocation}`)
+                        updatedLocations.push(response.data);
+                    } catch (e){
+                        console.error(e);
+                    }
+                
+
+
     
-    const onChangeSearch = (query : string) => setSearchQuery(query);
+                setMyLocations(updatedLocations);
+            }
+
+            fetchWeatherCardData();
+
+        }
+
+    }, [route.params?.newLocation])
+    
+    const onChangeSearch = (query : string) => {
+
+        setSearchQuery(query);
+    }
 
     const onDeletePress = (location : LocationInterface) => {
             const newLocations : LocationInterface[] = [];
@@ -69,41 +104,113 @@ function Home({ navigation } : HomeProps) : JSX.Element {
                 }
             })
             setMyLocations(newLocations);
-    }
+    };
+
+    
 
     
     const navigateToWeatherViewer = (index: number) => {
         navigation.navigate('WeatherViewer', {locations : myLocations, initialIndex : index});
         
+    };
+
+      const onSearchBarFocus = () => {
+       
+        setSearchBarFocus(!searchBarFocus);
+        
       };
 
-    return ( 
-        <View style={{flex : 1, backgroundColor : 'black', paddingTop : 20, paddingLeft : 20, paddingRight : 20}}>
-            <Text style={{color : 'white', fontSize : 40, marginBottom : 10}}>Weather</Text>  
-            <SearchBar  
-                        platform = 'default'
-                        containerStyle={{marginBottom : 10}}
-                        placeholder="Type Here..."
-                        onChangeText={onChangeSearch}
-                        
-                       value={searchQuery}>
-            </SearchBar>
+      const onSearchBarBlur = () => {
+            setSearchBarFocus(!searchBarFocus);
+            setSearchQuery('');
+      };
 
-            <ScrollView>
+     
+
+      
+
+      const data = null;
+
+      const isLocationInList = (location : string) => {
+        
+        for (const item of myLocations){
+            if (item.location_name === location) return true;
+        }
+
+        return false;
+      }
+
+      const onpress = (location : string) => {
+        let isAdded = isLocationInList(location);
+        navigation.push('WeatherPreview', {location : location, isAdded : isAdded});
+      }
+
+
+    return ( 
+        <View style={{flex : 1, backgroundColor : 'black', paddingTop : 20, paddingLeft : 10, paddingRight : 10}}>
+            <Text style={{color : 'white', fontSize : 40, marginBottom : 10}}>Weather</Text>  
+            
+            <View style={searchBarFocus ? styles.searchBarFocused : styles.searchBarBlurred}>
+            <FlatList   
+                        keyboardShouldPersistTaps='handled'
+                        ListHeaderComponent={
+                        <SearchBar  
+                            platform = 'default'
+                            containerStyle={{marginBottom : 10}}
+                            placeholder="Type Here..."
+                            onChangeText={onChangeSearch}
+                            onFocus={onSearchBarFocus}
+                            onBlur={onSearchBarBlur}
+                            blurOnSubmit={false}
+                            value={searchQuery}>
+                        </SearchBar>
+                        } 
+                        data={data} 
+                        
+                        renderItem={({item}) => 
+                        
+                        <Pressable onPress={() => onpress(item.location)}>
+                            <Text style={{color : 'white', fontSize : 20}}>{item.location}</Text>
+                        </Pressable>
+                
+            }
+            keyExtractor={item => item.id}></FlatList>
+            </View>
+            
+            {searchQuery.length == 0 ? <ScrollView style={searchBarFocus ? {opacity : 0.5} : null}>
                 <GestureHandlerRootView>
             {myLocations.map((item , index) => {
             
                 
                    return (
-                    <WeatherCard key={item.id} index={index} location={item} onDelete={onDeletePress} onPress={navigateToWeatherViewer}></WeatherCard>
+                    <WeatherCard key={item.location_name} index={index} location={item} onDelete={onDeletePress} onPress={navigateToWeatherViewer}></WeatherCard>
                     
                    ) 
             })}
             </GestureHandlerRootView>
-            </ScrollView>
+            </ScrollView> : null}
+            
         </View>
       
     );
 }
+
+const styles = StyleSheet.create({
+
+    searchBarFocused : {
+        position : 'absolute',
+        top : 0,
+        left : 0, 
+        right : 0
+    },
+    searchBarBlurred : {
+        position : 'relative',
+        top : 'auto',
+        left : 'auto',
+        right : 'auto'
+    }
+
+
+})
 
 export default Home;

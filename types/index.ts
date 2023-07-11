@@ -5,9 +5,9 @@ export type LocationInterface = {
     location_name : string,
     localtime : string,
     weather_desc : string,
-    current_temp : string,
-    high : string,
-    low : string
+    current_temp : number,
+    high : number,
+    low : number
 };
 
 export type WeeklyWeatherInterface = {
@@ -18,12 +18,15 @@ export type WeeklyWeatherInterface = {
 };
 
 export type RootParamList = {
-    Home: undefined;
+    Home: undefined | {newLocation : string};
     WeatherViewer: {locations : LocationInterface[] , initialIndex : number};
+    WeatherPreview : {location : string, isAdded : boolean}
 };
 
 export type HomeProps = StackScreenProps<RootParamList, 'Home'>;
 export type WeatherViewerProps = StackScreenProps<RootParamList, 'WeatherViewer'>;
+export type WeatherPreviewProps = StackScreenProps<RootParamList, 'WeatherPreview'>;
+
 
 export type WeatherCardProps = {
     location: LocationInterface,
