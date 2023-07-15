@@ -2,7 +2,8 @@
   "extends": "@tsconfig/react-native/tsconfig.json",
   "compilerOptions": {
     "strict": true,
-    "types" : ["node"],
+    "typeRoots": ["./types"],
+    "types" : [],
     "allowImportingTsExtensions": true
   }
 }

@@ -1,41 +1,19 @@
 import { useState, useEffect } from 'react';
-import {View, Text, ScrollView, Animated, StyleSheet, Button, TouchableOpacity, Pressable} from 'react-native';
+import {View, Text, ScrollView, StyleSheet, Pressable} from 'react-native';
 import { SearchBar} from  '@rneui/themed';
 import WeatherCard from '../components/WeatherCard';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import FRONTEND_URL = require('../config/config');
 import axios from 'axios';
 import { HomeProps, LocationInterface } from '../types';
-
-const locations = [
-    {id : '0',
-    location_name : 'New York',
-    localtime : '11:00PM',
-    weather_desc : 'Cloudy',
-    current_temp : 60,
-    high : 70,
-    low : 58
-    },
-
-    {id : '1',
-        location_name : 'Warsaw',
-        localtime : '11:00PM',
-        weather_desc : 'Cloudy',
-        current_temp : 60,
-        high : 70,
-        low : 58
-        },
-
-]
+import {REACT_APP_PLACES_API_KEY} from '@env';
 
 
-
-
-
-function Home({ navigation, route } : HomeProps) : JSX.Element {
-    const [myLocations, setMyLocations] = useState<LocationInterface[]>(locations);
+function HomeScreen({ navigation, route } : HomeProps) : JSX.Element {
+    const [myLocations, setMyLocations] = useState<LocationInterface[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchBarFocus, setSearchBarFocus] = useState(false);
+    const [searchResults, setSearchResults] = useState<string[]>([]);
 
     
     useEffect(() => {
@@ -64,7 +42,7 @@ function Home({ navigation, route } : HomeProps) : JSX.Element {
 
     useEffect(() => {
         if (route.params?.newLocation){
-            console.log(route.params?.newLocation);
+            
             const fetchWeatherCardData = async () => {
             
                 const updatedLocations : LocationInterface[] = [];
@@ -93,6 +71,31 @@ function Home({ navigation, route } : HomeProps) : JSX.Element {
 
         setSearchQuery(query);
     }
+
+    useEffect(() => {
+
+        const fetchLocationSuggestions = async () => {
+
+            const newResults : string[] = [];
+
+            try {
+                const response = await axios.get(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${searchQuery}&types=(cities)&key=${REACT_APP_PLACES_API_KEY}`);
+                
+                for (let suggestion of response.data.predictions){
+                    newResults.push(suggestion['description']);
+                }
+            
+            } catch(e){
+                console.error(e);
+            }
+
+            setSearchResults(newResults);
+        }
+
+        fetchLocationSuggestions();
+
+
+    }, [searchQuery])
 
     const onDeletePress = (location : LocationInterface) => {
             const newLocations : LocationInterface[] = [];
@@ -124,12 +127,6 @@ function Home({ navigation, route } : HomeProps) : JSX.Element {
             setSearchBarFocus(!searchBarFocus);
             setSearchQuery('');
       };
-
-     
-
-      
-
-      const data = null;
 
       const isLocationInList = (location : string) => {
         
@@ -165,16 +162,16 @@ function Home({ navigation, route } : HomeProps) : JSX.Element {
                             value={searchQuery}>
                         </SearchBar>
                         } 
-                        data={data} 
+                        data={searchResults} 
                         
                         renderItem={({item}) => 
                         
-                        <Pressable onPress={() => onpress(item.location)}>
-                            <Text style={{color : 'white', fontSize : 20}}>{item.location}</Text>
+                        <Pressable onPress={() => onpress(item)}>
+                            <Text style={{color : 'white', fontSize : 20}}>{item}</Text>
                         </Pressable>
                 
             }
-            keyExtractor={item => item.id}></FlatList>
+            keyExtractor={item => item}></FlatList>
             </View>
             
             {searchQuery.length == 0 ? <ScrollView style={searchBarFocus ? {opacity : 0.5} : null}>
@@ -213,4 +210,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default Home;
+export default HomeScreen;

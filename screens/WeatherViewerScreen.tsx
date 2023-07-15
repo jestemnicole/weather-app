@@ -4,7 +4,7 @@ import { WeatherViewerProps } from '../types';
 import { View, Button, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign'
 
-function WeatherViewer({navigation, route} : WeatherViewerProps) : JSX.Element {
+function WeatherViewerScreen({navigation, route} : WeatherViewerProps) : JSX.Element {
     const {locations, initialIndex} = route.params;
     
     const onButtonPress = () => {
@@ -12,14 +12,13 @@ function WeatherViewer({navigation, route} : WeatherViewerProps) : JSX.Element {
     }
     return (
         
-        
         <>
-        <Swiper     paginationStyle={{ height : 35, bottom: 0 , backgroundColor : 'rgba(0, 0, 0, 0.8)'}} 
-                    activeDotStyle={{backgroundColor : 'white'}}
-                    dotStyle={{backgroundColor : 'gray'}}
-                    loop={false} 
-                    index={initialIndex}
-                    >
+        <Swiper paginationStyle={{ height : 35, bottom: 0 , backgroundColor : 'rgba(0, 0, 0, 0.8)'}} 
+                activeDotStyle={{backgroundColor : 'white'}}
+                dotStyle={{backgroundColor : 'gray'}}
+                loop={false} 
+                index={initialIndex}
+        >
           
           {locations.map(location => {
             return (
@@ -42,4 +41,4 @@ function WeatherViewer({navigation, route} : WeatherViewerProps) : JSX.Element {
     )
 };
 
-export default WeatherViewer;
+export default WeatherViewerScreen;

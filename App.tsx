@@ -2,10 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack'
 import { SafeAreaView, StyleSheet } from 'react-native';
-import Home from './screens/Home';
-import WeatherViewer from './screens/WeatherViewer';
+import HomeScreen from './screens/HomeScreen';
+import WeatherViewer from './screens/WeatherViewerScreen';
 import { RootParamList } from './types';
-import WeatherPreview from './screens/WeatherPreview';
+import WeatherPreview from './screens/WeatherPreviewScreen';
 
 const Stack = createStackNavigator<RootParamList>();
 
@@ -16,7 +16,7 @@ function App(): JSX.Element {
     <SafeAreaView style={{flex : 1}}>
       <NavigationContainer>
       <Stack.Navigator initialRouteName='Home'>
-      <Stack.Screen name='Home' component={Home} options={{ headerShown: false }}></Stack.Screen>
+      <Stack.Screen name='Home' component={HomeScreen} options={{ headerShown: false }}></Stack.Screen>
       <Stack.Screen name='WeatherViewer' component={WeatherViewer} options={{headerShown : false}}></Stack.Screen>
       <Stack.Screen name='WeatherPreview' component={WeatherPreview} options={{headerShown : false}}></Stack.Screen>
       </Stack.Navigator>

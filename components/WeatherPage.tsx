@@ -5,11 +5,14 @@ import axios from 'axios';
 import { WeeklyWeatherInterface } from '../types/index.js';
 import { FlatList } from 'react-native-gesture-handler';
 import { ScrollView, StyleSheet, Text, View, Image, ImageBackground } from 'react-native';
+import { PropsWithChildren } from 'react';
 
-  
+  type WeatherPageProps = {
+    location : string
+  }
 
 
-function WeatherPage({location} : {location : string}): JSX.Element {
+function WeatherPage(props : PropsWithChildren<WeatherPageProps>): JSX.Element {
  
     const [currentWeatherData, setCurrentWeatherData] = useState<any>(null);
     const [hourlyWeatherData, setHourlyWeatherData] = useState<any>(null);
@@ -32,11 +35,11 @@ function WeatherPage({location} : {location : string}): JSX.Element {
   
       useEffect(() => {
      
-          const currentWeatherURL = `${FRONTEND_URL}/current/${location}`;
-          const hourlyWeatherURL = `${FRONTEND_URL}/hourly/${location}`;
-          const weeklyWeatherURL = `${FRONTEND_URL}/weekly/${location}`;
-          const airQualityURL = `${FRONTEND_URL}/airquality/${location}`;
-          const uvURL = `${FRONTEND_URL}/uv/${location}`;
+          const currentWeatherURL = `${FRONTEND_URL}/current/${props.location}`;
+          const hourlyWeatherURL = `${FRONTEND_URL}/hourly/${props.location}`;
+          const weeklyWeatherURL = `${FRONTEND_URL}/weekly/${props.location}`;
+          const airQualityURL = `${FRONTEND_URL}/airquality/${props.location}`;
+          const uvURL = `${FRONTEND_URL}/uv/${props.location}`;
           
           fetchWeatherData(currentWeatherURL, setCurrentWeatherData);
           fetchWeatherData(hourlyWeatherURL, setHourlyWeatherData);
@@ -52,9 +55,10 @@ function WeatherPage({location} : {location : string}): JSX.Element {
 
       return (
 
-      <ImageBackground style={{flex : 1}}source={image}>
+       <ImageBackground style={{flex : 1}} source={image}>
       
       <ScrollView>
+        {props.children}
       {currentWeatherData && <View style={styles.currentWeatherDisplay}>
         <Text style={{fontSize: 40,
                       marginTop: 30,
@@ -83,7 +87,7 @@ function WeatherPage({location} : {location : string}): JSX.Element {
 
       </View>}
 
-    {<FlatList style={styles.hourlyWeatherList} data={hourlyWeatherData}
+    {hourlyWeatherData && <FlatList style={styles.hourlyWeatherList} data={hourlyWeatherData}
               renderItem={({item}) => 
                 <View style={styles.hourlyWeatherDisplay}>
                   <Text style={{color : 'white', fontFamily: 'Roboto', fontSize : 15}}>{item.time}</Text>
@@ -94,6 +98,8 @@ function WeatherPage({location} : {location : string}): JSX.Element {
                horizontal={true}>
       </FlatList>}
 
+      
+      {weeklyWeatherData &&
       <View style={styles.weeklyWeatherList}>
             <Text style={{color : 'white', fontFamily : 'Roboto', fontSize : 13}}>3-DAY FORECAST</Text>
       {weeklyWeatherData && weeklyWeatherData.map((item : WeeklyWeatherInterface) => {
@@ -107,26 +113,28 @@ function WeatherPage({location} : {location : string}): JSX.Element {
               
       })}
       </View>
-         
+}
+         {uvIndexData && airQualityData &&
       <View style={{flex : 1, flexDirection : 'row'}}>
           <View style={styles.UVIndexView}>
           <Text style={{color : 'white'}}>UV INDEX</Text>
           <Text style={{color : 'white', fontSize : 20, textAlign: 'center'}}>{uvIndexData}</Text>
           </View>
-
+         
           <View style={styles.airQualityView}>
         <Text style={{color : 'white', fontFamily : 'Roboto', fontSize : 13}}>AIR QUALITY</Text>
         <Text style={{color : 'white', fontFamily : 'Roboto', fontSize : 20, textAlign : 'center'}}>{airQualityData}</Text>
         </View>
-
+         
           
         </View>
-         
+}
 
           
          
       </ScrollView> 
       </ImageBackground>
+
    
       );
     }
