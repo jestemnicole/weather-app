@@ -167,7 +167,7 @@ function HomeScreen({ navigation, route } : HomeProps) : JSX.Element {
                         renderItem={({item}) => 
                         
                         <Pressable onPress={() => onpress(item)}>
-                            <Text style={{color : 'white', fontSize : 20}}>{item}</Text>
+                            <Text style={{marginBottom : 10, color : 'white', fontSize : 20}}>{item}</Text>
                         </Pressable>
                 
             }

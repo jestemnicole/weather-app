@@ -25,7 +25,11 @@ exports.getHourlyWeatherData = async (location) => {
             temp_f : Math.round(response.data['current']['temp_f']) + '°',
             icon : response.data['current']['condition']['icon']
         };
-        const currentTime = response.data['current']['last_updated'];
+        let currentTime = response.data['location']['localtime'];
+        if (currentTime.split(" ")[1].length === 4){
+            currentTime = currentTime.split(" ")[0] + " 0" + currentTime.split(" ")[1]
+        }
+        
         const hourly = [];
         hourly.push(current);
         let count = 1;
